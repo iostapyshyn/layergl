@@ -3,12 +3,7 @@ package layergl
 import (
 	"fmt"
 	"github.com/go-gl/gl/v3.3-core/gl"
-	"io/ioutil"
 	"strings"
-)
-
-const (
-	shaderDir = "../shaders/"
 )
 
 type shader uint32
@@ -114,16 +109,18 @@ func newShaderProgram(vs, fs string) shader {
 	return shader
 }
 
-func loadShader(fileName string, shaderType uint32) (uint32, error) {
-	fileName = shaderDir + fileName
-	b, err := ioutil.ReadFile(fileName)
-	if err != nil {
-		panic(err)
-	}
+func loadShader(data string, shaderType uint32) (uint32, error) {
+	/*
+		fileName = shaderDir + fileName
+		b, err := ioutil.ReadFile(fileName)
+		if err != nil {
+			panic(err)
+		}
+	*/
 
 	shader := gl.CreateShader(shaderType)
 
-	source := string(b)
+	source := string(data)
 	csource, free := gl.Strs(source + "\x00")
 	gl.ShaderSource(shader, 1, csource, nil)
 	free()
@@ -144,3 +141,71 @@ func loadShader(fileName string, shaderType uint32) (uint32, error) {
 
 	return shader, nil
 }
+
+// Shader sources:
+
+const circleFrag = `
+#version 330
+out vec4 frag_color;
+
+uniform vec4 color;
+uniform vec3 circle;
+
+const int aa = 1;
+
+void main() {
+    float d = distance(gl_FragCoord.xy, circle.xy);
+    float k = 1-smoothstep(circle.z-(2*aa), circle[2], d);
+    
+    frag_color = vec4(color.xyz, k*color.w);
+}
+`
+
+const polygonFrag = `
+#version 330
+out vec4 frag_color;
+
+uniform vec4 color;
+
+void main() {
+    frag_color = color;
+}
+`
+
+const textureFrag = `
+#version 330
+out vec4 frag_color;
+
+in vec2 fragTexCoord;
+
+uniform sampler2D tex;
+
+void main() {
+    frag_color = texture(tex, vec2(fragTexCoord.x, 1-fragTexCoord.y)); // Flip Y axis
+}
+`
+
+const textureVert = `
+#version 330
+layout(location = 0)in vec3 vert;
+layout(location = 1)in vec2 vertTexCoord;
+out vec2 fragTexCoord;
+
+uniform mat4 projection;
+
+void main() {
+    fragTexCoord = vertTexCoord;
+    gl_Position = projection * vec4(vert, 1);
+}
+`
+
+const vertexVert = `
+#version 330
+layout(location = 0) in vec2 vert;
+
+uniform mat4 projection;
+
+void main() {
+    gl_Position = projection * vec4(vert, 0.0, 1.0);
+}
+`

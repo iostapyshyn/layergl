@@ -99,9 +99,9 @@ func CreateRenderer(width, height int) (Renderer, error) {
 
 	ren.vertexBuffer = newVertexBuffer(128)
 
-	ren.polygonShader = newShaderProgram("vertex.vert", "polygon.frag")
-	ren.circleShader = newShaderProgram("vertex.vert", "circle.frag")
-	ren.textureShader = newShaderProgram("texture.vert", "texture.frag")
+	ren.polygonShader = newShaderProgram(vertexVert, polygonFrag)
+	ren.circleShader = newShaderProgram(vertexVert, circleFrag)
+	ren.textureShader = newShaderProgram(textureVert, textureFrag)
 
 	projectionMatrix := orthoProjection(0, float32(width), 0, float32(height), -1, 1)
 	ren.polygonShader.setUniformMat("projection", projectionMatrix)
