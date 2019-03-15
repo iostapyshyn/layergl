@@ -6,7 +6,7 @@ Modern OpenGL abstraction layer (In other words, graphics library) for Go.
 ## Usage
 ### Minimal source code
 
-```
+```go
 package main
 
 import (
