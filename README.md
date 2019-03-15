@@ -91,7 +91,7 @@ func loop() {
 }
 ```
 
-For more features, refer to demo program source code included in the repository.
+For more features, please refer to demo program source code included in the repository.
 
 Libraries used:
  * [go-gl](https://github.com/go-gl/gl): Go bindings for OpenGL.
