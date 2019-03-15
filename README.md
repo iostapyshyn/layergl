@@ -4,6 +4,13 @@ Modern OpenGL abstraction layer (In other words, graphics library) for Go.
 ![Minimal example window](screenshot.png?raw=true)
 
 ## Usage
+
+### Installation
+
+```bash
+ $ go get -u github.com/iostapyshyn/layergl
+```
+
 ### Minimal Example
 
 ```go

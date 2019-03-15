@@ -49,7 +49,7 @@ func worldRun() {
 // World initialization
 func worldInit() {
 	rand.Seed(time.Now().UnixNano())
-	rectColor = layergl.Color{rand.Float32(), rand.Float32(), rand.Float32(), 1.0}
+	rectColor = layergl.Color{rand.Float32(), rand.Float32(), rand.Float32(), 0.9}
 }
 
 // Main world updating function.
@@ -65,14 +65,14 @@ func worldUpdate() {
 		(rect.XLeastPoint().X <= 0 && xVelocity < 0) {
 		xVelocity = -xVelocity
 		angularVelocity = -angularVelocity
-		rectColor = layergl.Color{rand.Float32(), rand.Float32(), rand.Float32(), 1.0}
+		rectColor = layergl.Color{rand.Float32(), rand.Float32(), rand.Float32(), 0.9}
 	}
 
 	if (rect.YMostPoint().Y >= height && yVelocity > 0) ||
 		(rect.YLeastPoint().Y <= 0 && yVelocity < 0) {
 		yVelocity = -yVelocity
 		angularVelocity = -angularVelocity
-		rectColor = layergl.Color{rand.Float32(), rand.Float32(), rand.Float32(), 1.0}
+		rectColor = layergl.Color{rand.Float32(), rand.Float32(), rand.Float32(), 0.9}
 	}
 
 	mu.Unlock()

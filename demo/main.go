@@ -88,8 +88,8 @@ func loop() {
 
 		mu.Lock()
 
-		renderer.Polygon(rect, rectColor)
 		renderer.Texture(tex.Move(570, 410))
+		renderer.Polygon(rect, rectColor)
 
 		mu.Unlock()
 
