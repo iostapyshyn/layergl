@@ -14,8 +14,8 @@ var tex = layergl.Texture{}
 
 var (
 	angularVelocity = float64(-.3)
-	xVelocity       = float32(1.0)
-	yVelocity       = float32(1.0)
+	xVelocity       = float32(1.2)
+	yVelocity       = float32(1.2)
 	rectColor       = layergl.Color{}
 )
 
