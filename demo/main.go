@@ -84,20 +84,18 @@ func loop() {
 	for !window.ShouldClose() && running {
 		renderer.Clear()
 
-		renderer.Texture(bg)
+		renderer.DrawTexture(bg)
 
 		mu.Lock()
 
-		renderer.Texture(tex.Move(570, 410))
-		renderer.Polygon(rect, rectColor)
+		renderer.DrawTexture(tex.Move(570, 410))
+		renderer.DrawPolygon(rect, rectColor)
 
 		mu.Unlock()
 
-		renderer.Render()
-
 		select {
 		case <-ticker.C:
-			window.SetTitle(fmt.Sprintf("%v FPS", renderer.FPS))
+			window.SetTitle(fmt.Sprintf("%v FPS", renderer.FramesPerSecond))
 		default:
 			// Continue...
 		}

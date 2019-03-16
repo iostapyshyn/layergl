@@ -7,42 +7,15 @@ import (
 )
 
 type Renderer struct {
-	polygonShader shader
-	circleShader  shader
-	textureShader shader
-	vertexBuffer  vertexBuffer
-	objects       []Drawer
-	lastTime      int64
-	frames, FPS   int
+	polygonShader           shader
+	circleShader            shader
+	textureShader           shader
+	vertexBuffer            vertexBuffer
+	lastTime                int64
+	frames, FramesPerSecond int
 }
 
-type (
-	Drawer interface {
-		Draw(ren *Renderer)
-	}
-
-	rendererTexture struct {
-		Texture
-	}
-
-	rendererPolygon struct {
-		VertexObject
-		Color
-	}
-
-	rendererCircle struct {
-		Point
-		Color
-		R float32
-	}
-
-	rendererLines struct {
-		VertexObject
-		Color
-	}
-)
-
-func (d rendererTexture) Draw(ren *Renderer) {
+func (ren Renderer) DrawTexture(d Texture) {
 	ren.vertexBuffer.loadVertexArray(d.GetVertexArray())
 	ren.vertexBuffer.loadUVs([]float32{
 		0.0, 0.0,
@@ -50,29 +23,34 @@ func (d rendererTexture) Draw(ren *Renderer) {
 		1.0, 0.0,
 		1.0, 1.0,
 	})
-	ren.textureShader.drawTexture(ren.vertexBuffer, d.Texture)
+	ren.textureShader.drawTexture(ren.vertexBuffer, d)
 }
 
-func (d rendererPolygon) Draw(ren *Renderer) {
+func (ren Renderer) DrawPolygon(d VertexObject, color Color) {
 	ren.vertexBuffer.loadVertexArray(d.GetVertexArray())
-	ren.polygonShader.drawColor(ren.vertexBuffer, d.Color)
+	ren.polygonShader.drawColor(ren.vertexBuffer, color)
 }
 
-func (d rendererCircle) Draw(ren *Renderer) {
-	ren.circleShader.setUniformVec("circle", d.X, d.Y, d.R)
-	ren.vertexBuffer.loadVertexArray(Square(d.Point, d.R*2).GetVertexArray())
-	ren.circleShader.drawColor(ren.vertexBuffer, d.Color)
+func (ren Renderer) DrawPoint(d Point, r float32, color Color) {
+	ren.circleShader.setUniformVec("circle", d.X, d.Y, r)
+	ren.vertexBuffer.loadVertexArray(Square(d, r*2).GetVertexArray())
+	ren.circleShader.drawColor(ren.vertexBuffer, color)
 }
 
-func (d rendererLines) Draw(ren *Renderer) {
-	ren.vertexBuffer.loadVertexArray(d.GetVertexArray())
-	ren.polygonShader.drawLines(ren.vertexBuffer, d.Color)
+func (ren Renderer) DrawLines(points []Point, color Color) {
+	vo := VertexObject{}
+	for i, v := range points {
+		vo.Vertices = append(vo.Vertices, v)
+		vo.Indices = append(vo.Indices, uint32(i))
+	}
+
+	ren.vertexBuffer.loadVertexArray(vo.GetVertexArray())
+	ren.polygonShader.drawLines(ren.vertexBuffer, color)
 }
 
 func (ren *Renderer) Clear() {
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-
-	ren.objects = ren.objects[:0]
+	ren.UpdateFPS()
 }
 
 func CreateRenderer(width, height int) (Renderer, error) {
@@ -129,41 +107,12 @@ func orthoProjection(left, right, bottom, top, near, far float32) []float32 {
 	}
 }
 
-func (ren *Renderer) Texture(texture Texture) {
-	ren.objects = append(ren.objects, rendererTexture{texture})
-}
-
-func (ren *Renderer) Polygon(polygon VertexObject, color Color) {
-	ren.objects = append(ren.objects, rendererPolygon{polygon, color})
-}
-
-func (ren *Renderer) Point(point Point, r float32, color Color) {
-	ren.objects = append(ren.objects, rendererCircle{point, color, r})
-}
-
-func (ren *Renderer) Line(points []Point, color Color) {
-	vo := VertexObject{}
-	for i, v := range points {
-		vo.Vertices = append(vo.Vertices, v)
-		vo.Indices = append(vo.Indices, uint32(i))
-	}
-	ren.objects = append(ren.objects, rendererLines{vo, color})
-}
-
-func (ren *Renderer) Render() {
-	for _, v := range ren.objects {
-		v.Draw(ren)
-	}
-
-	ren.UpdateFPS()
-}
-
 func (ren *Renderer) UpdateFPS() {
 	nowTime := time.Now().UnixNano()
 	ren.frames++
 	if nowTime-ren.lastTime >= int64(time.Second) {
 		ren.lastTime = nowTime
-		ren.FPS = ren.frames
+		ren.FramesPerSecond = ren.frames
 		ren.frames = 0
 	}
 }
