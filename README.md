@@ -61,8 +61,6 @@ func main() {
 
 	defer window.Destroy()
 
-	window.SetKeyCallback(keyCallback)
-
 	// Center window on screen
 	vidmode := glfw.GetPrimaryMonitor().GetVideoMode()
 	window.SetPos((vidmode.Width-width)/2, (vidmode.Height-height)/2)
