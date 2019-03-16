@@ -34,16 +34,6 @@ func init() {
 	runtime.LockOSThread()
 }
 
-func keyCallback(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods glfw.ModifierKey) {
-	switch action {
-	case glfw.Release:
-		switch key {
-		case glfw.KeyEscape:
-			w.SetShouldClose(true)
-		}
-	}
-}
-
 func main() {
 	var err error
 	if err := glfw.Init(); err != nil {
