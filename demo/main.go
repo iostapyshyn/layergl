@@ -62,7 +62,7 @@ func main() {
 }
 
 func loop() {
-	renderer, err := layergl.CreateRenderer(width, height)
+	err := layergl.Init(width, height)
 	if err != nil {
 		panic(err)
 	}
@@ -76,28 +76,31 @@ func loop() {
 
 	// Ticker for updating FPS
 	ticker := time.NewTicker(time.Second)
+	frames := 0
+
 	defer ticker.Stop()
 
 	worldRun()
 	defer worldStop()
 
 	for !window.ShouldClose() && running {
-		renderer.Clear()
+		layergl.Clear()
 
-		renderer.DrawTexture(bg)
+		layergl.DrawTexture(bg)
 
 		mu.Lock()
 
-		renderer.DrawTexture(tex.Move(570, 410))
-		renderer.DrawPolygon(rect, rectColor)
+		layergl.DrawTexture(tex.Move(570, 410))
+		layergl.DrawPolygon(rect, rectColor)
 
 		mu.Unlock()
 
 		select {
 		case <-ticker.C:
-			window.SetTitle(fmt.Sprintf("%v FPS", renderer.FramesPerSecond))
+			window.SetTitle(fmt.Sprintf("%v FPS", frames))
+			frames = 0
 		default:
-			// Continue...
+			frames++
 		}
 
 		window.SwapBuffers()

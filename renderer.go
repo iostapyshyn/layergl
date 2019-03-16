@@ -3,59 +3,55 @@ package layergl
 import (
 	"fmt"
 	"github.com/go-gl/gl/v3.3-core/gl"
-	"time"
 )
 
-type Renderer struct {
-	polygonShader           shader
-	circleShader            shader
-	textureShader           shader
-	vertexBuffer            vertexBuffer
-	lastTime                int64
-	frames, FramesPerSecond int
-}
+var (
+	polygonShader shader
+	circleShader  shader
+	textureShader shader
+	vertBuffer    vertexBuffer
+)
 
-func (ren Renderer) DrawTexture(d Texture) {
-	ren.vertexBuffer.loadVertexArray(d.GetVertexArray())
-	ren.vertexBuffer.loadUVs([]float32{
+func DrawTexture(d Texture) {
+	vertBuffer.loadVertexArray(d.GetVertexArray())
+	vertBuffer.loadUVs([]float32{
 		0.0, 0.0,
 		0.0, 1.0,
 		1.0, 0.0,
 		1.0, 1.0,
 	})
-	ren.textureShader.drawTexture(ren.vertexBuffer, d)
+	textureShader.drawTexture(vertBuffer, d)
 }
 
-func (ren Renderer) DrawPolygon(d VertexObject, color Color) {
-	ren.vertexBuffer.loadVertexArray(d.GetVertexArray())
-	ren.polygonShader.drawColor(ren.vertexBuffer, color)
+func DrawPolygon(d VertexObject, color Color) {
+	vertBuffer.loadVertexArray(d.GetVertexArray())
+	polygonShader.drawColor(vertBuffer, color)
 }
 
-func (ren Renderer) DrawPoint(d Point, r float32, color Color) {
-	ren.circleShader.setUniformVec("circle", d.X, d.Y, r)
-	ren.vertexBuffer.loadVertexArray(Square(d, r*2).GetVertexArray())
-	ren.circleShader.drawColor(ren.vertexBuffer, color)
+func DrawPoint(d Point, r float32, color Color) {
+	circleShader.setUniformVec("circle", d.X, d.Y, r)
+	vertBuffer.loadVertexArray(Square(d, r*2).GetVertexArray())
+	circleShader.drawColor(vertBuffer, color)
 }
 
-func (ren Renderer) DrawLines(points []Point, color Color) {
+func DrawLines(points []Point, color Color) {
 	vo := VertexObject{}
 	for i, v := range points {
 		vo.Vertices = append(vo.Vertices, v)
 		vo.Indices = append(vo.Indices, uint32(i))
 	}
 
-	ren.vertexBuffer.loadVertexArray(vo.GetVertexArray())
-	ren.polygonShader.drawLines(ren.vertexBuffer, color)
+	vertBuffer.loadVertexArray(vo.GetVertexArray())
+	polygonShader.drawLines(vertBuffer, color)
 }
 
-func (ren *Renderer) Clear() {
+func Clear() {
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-	ren.UpdateFPS()
 }
 
-func CreateRenderer(width, height int) (Renderer, error) {
+func Init(width, height int) error {
 	if err := gl.Init(); err != nil {
-		return Renderer{}, err
+		return err
 	}
 
 	versionString := gl.GoStr(gl.GetString(gl.VERSION))
@@ -73,27 +69,23 @@ func CreateRenderer(width, height int) (Renderer, error) {
 
 	gl.ClearColor(0, 0, 0, 1)
 
-	ren := Renderer{}
+	vertBuffer = newVertexBuffer(128)
 
-	ren.vertexBuffer = newVertexBuffer(128)
-
-	ren.polygonShader = newShaderProgram(vertexVert, polygonFrag)
-	ren.circleShader = newShaderProgram(vertexVert, circleFrag)
-	ren.textureShader = newShaderProgram(textureVert, textureFrag)
+	polygonShader = newShaderProgram(vertexVert, polygonFrag)
+	circleShader = newShaderProgram(vertexVert, circleFrag)
+	textureShader = newShaderProgram(textureVert, textureFrag)
 
 	projectionMatrix := orthoProjection(0, float32(width), 0, float32(height), -1, 1)
-	ren.polygonShader.setUniformMat("projection", projectionMatrix)
-	ren.circleShader.setUniformMat("projection", projectionMatrix)
-	ren.textureShader.setUniformMat("projection", projectionMatrix)
+	polygonShader.setUniformMat("projection", projectionMatrix)
+	circleShader.setUniformMat("projection", projectionMatrix)
+	textureShader.setUniformMat("projection", projectionMatrix)
 
-	ren.textureShader.setUniformVec("tex", 0)
+	textureShader.setUniformVec("tex", 0)
 
-	ren.UpdateFPS()
-
-	return ren, nil
+	return nil
 }
 
-func (ren Renderer) ClearColor(color Color) {
+func ClearColor(color Color) {
 	gl.ClearColor(color[0], color[1], color[2], color[3])
 }
 
@@ -104,15 +96,5 @@ func orthoProjection(left, right, bottom, top, near, far float32) []float32 {
 		0, 2. / tmb, 0, 0,
 		0, 0, 2. / fmn, 0,
 		-(right + left) / rml, -(top + bottom) / tmb, -(far + near) / fmn, 1,
-	}
-}
-
-func (ren *Renderer) UpdateFPS() {
-	nowTime := time.Now().UnixNano()
-	ren.frames++
-	if nowTime-ren.lastTime >= int64(time.Second) {
-		ren.lastTime = nowTime
-		ren.FramesPerSecond = ren.frames
-		ren.frames = 0
 	}
 }

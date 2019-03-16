@@ -34,6 +34,16 @@ func init() {
 	runtime.LockOSThread()
 }
 
+func keyCallback(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods glfw.ModifierKey) {
+	switch action {
+	case glfw.Release:
+		switch key {
+		case glfw.KeyEscape:
+			w.SetShouldClose(true)
+		}
+	}
+}
+
 func main() {
 	var err error
 	if err := glfw.Init(); err != nil {
@@ -76,22 +86,18 @@ func main() {
 }
 
 func loop() {
-	renderer, err := layergl.CreateRenderer(width, height)
+	err := layergl.Init(width, height)
 	if err != nil {
 		panic(err)
 	}
 
 	for !window.ShouldClose() {
-		renderer.Clear()
+		layergl.Clear()
 
-		// Draw violet triangle in the middle of a screen
-		renderer.Polygon(layergl.Triangles([]layergl.Point{
+		layergl.DrawPolygon(layergl.Triangles([]layergl.Point{
 			{X: width/2 - 100, Y: height/2 - 100},
 			{X: width/2 + 100, Y: height/2 - 100},
 			{X: width / 2, Y: height/2 + 100}}...), layergl.Color{1.0, 0.0, 1.0, 1.0})
-
-		// Present the image
-		renderer.Render()
 
 		window.SwapBuffers()
 		glfw.PollEvents()
