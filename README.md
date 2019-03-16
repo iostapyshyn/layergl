@@ -99,5 +99,4 @@ For more features, please refer to demo program source code included in the repo
 
 Libraries used:
  * [go-gl](https://github.com/go-gl/gl): Go bindings for OpenGL.
- * [GLFW](http://www.glfw.org): Open Source, multi-platform library for OpenGL, OpenGL ES and Vulkan development on the desktop.
  
