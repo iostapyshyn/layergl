@@ -66,7 +66,7 @@ func (v shader) bind() {
 	gl.UseProgram(uint32(v))
 }
 
-func (shader shader) drawTexture(vao vertexBuffer, texture Texture) {
+func (shader shader) drawTexture(vao *vertexBuffer, texture *Texture) {
 	texture.bind()
 	shader.bind()
 	vao.bind()
@@ -74,15 +74,15 @@ func (shader shader) drawTexture(vao vertexBuffer, texture Texture) {
 	gl.DrawElements(gl.TRIANGLES, int32(vao.count), gl.UNSIGNED_INT, nil)
 }
 
-func (shader shader) drawColor(vao vertexBuffer, color Color) {
-	shader.setUniformVec("color", color[:]...)
+func (shader shader) drawColor(vao *vertexBuffer, color Color) {
+	shader.setUniformVec("color", float32(color.R), float32(color.G), float32(color.B), float32(color.A))
 	vao.bind()
 
 	gl.DrawElements(gl.TRIANGLES, int32(vao.count), gl.UNSIGNED_INT, nil)
 }
 
-func (shader shader) drawLines(vao vertexBuffer, color Color) {
-	shader.setUniformVec("color", color[:]...)
+func (shader shader) drawLines(vao *vertexBuffer, color Color) {
+	shader.setUniformVec("color", float32(color.R), float32(color.G), float32(color.B), float32(color.A))
 	vao.bind()
 
 	gl.DrawElements(gl.LINE_STRIP, int32(vao.count), gl.UNSIGNED_INT, nil)

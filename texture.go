@@ -11,7 +11,7 @@ import (
 )
 
 type Texture struct {
-	VertexObject
+	*VertexObject
 	width, height float32
 	tex           uint32
 }
@@ -52,40 +52,36 @@ func loadImage(fileName string) (uint32, error) {
 	return texture, nil
 }
 
-func NewTexture(fileName string, width, height float32) (texture Texture, err error) {
+func NewTexture(fileName string, width, height float64) (texture *Texture, err error) {
+	texture = new(Texture)
 	texture.VertexObject = Rectangle(Point{0, 0}, width, height)
 	texture.tex, err = loadImage(fileName)
-	texture.width = width
-	texture.height = height
+	texture.width = float32(width)
+	texture.height = float32(height)
 	return
 }
 
-func (t Texture) bind() {
+func (t *Texture) bind() {
 	gl.ActiveTexture(gl.TEXTURE0)
 	gl.BindTexture(gl.TEXTURE_2D, t.tex)
 }
 
-func (t Texture) Move(x, y float32) Texture {
-	t.VertexObject = t.VertexObject.Move(x, y)
-	return t
+func (t *Texture) Move(x, y float64) {
+	t.VertexObject.Move(x, y)
 }
 
-func (t Texture) CenterAt(point Point) Texture {
-	t.VertexObject = t.VertexObject.CenterAt(point)
-	return t
+func (t *Texture) CenterAt(point Point) {
+	t.VertexObject.CenterAt(point)
 }
 
-func (t Texture) RotateDeg(angle float64) Texture {
-	t.VertexObject = t.VertexObject.RotateDeg(angle)
-	return t
+func (t *Texture) RotateDeg(angle float64) {
+	t.VertexObject.RotateDeg(angle)
 }
 
-func (t Texture) RotateRad(angle float64) Texture {
-	t.VertexObject = t.VertexObject.RotateRad(angle)
-	return t
+func (t *Texture) RotateRad(angle float64) {
+	t.VertexObject.RotateRad(angle)
 }
 
-func (t Texture) Scale(scale float64) Texture {
-	t.VertexObject = t.VertexObject.Scale(scale)
-	return t
+func (t *Texture) Scale(scale float64) {
+	t.VertexObject.Scale(scale)
 }

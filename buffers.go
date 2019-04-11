@@ -13,7 +13,7 @@ type vertexBuffer struct {
 
 const t32Bytes = 4
 
-func newVertexBuffer(bufferSize int) vertexBuffer {
+func newVertexBuffer(bufferSize int) *vertexBuffer {
 	if bufferSize <= 0 {
 		bufferSize = 1
 	}
@@ -45,7 +45,7 @@ func newVertexBuffer(bufferSize int) vertexBuffer {
 	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo)
 	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, bufferSize*t32Bytes, gl.Ptr(nil), gl.DYNAMIC_DRAW)
 
-	return vertexBuffer{vao, vbo, uvbo, ebo, bufferSize, bufferSize, 0}
+	return &vertexBuffer{vao, vbo, uvbo, ebo, bufferSize, bufferSize, 0}
 }
 
 func (v *vertexBuffer) loadUVs(uv []float32) {
@@ -86,6 +86,6 @@ func (v *vertexBuffer) loadVertexArray(vertices []float32, elements []uint32) {
 	v.count = len(elements)
 }
 
-func (v vertexBuffer) bind() {
+func (v *vertexBuffer) bind() {
 	gl.BindVertexArray(v.vao)
 }

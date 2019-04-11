@@ -9,11 +9,11 @@ var (
 	polygonShader shader
 	circleShader  shader
 	textureShader shader
-	vertBuffer    vertexBuffer
+	vertBuffer    *vertexBuffer
 )
 
-func DrawTexture(d Texture) {
-	vertBuffer.loadVertexArray(d.GetVertexArray())
+func DrawTexture(d *Texture) {
+	vertBuffer.loadVertexArray(d.getVertexArray())
 	vertBuffer.loadUVs([]float32{
 		0.0, 0.0,
 		0.0, 1.0,
@@ -23,25 +23,25 @@ func DrawTexture(d Texture) {
 	textureShader.drawTexture(vertBuffer, d)
 }
 
-func DrawPolygon(d VertexObject, color Color) {
-	vertBuffer.loadVertexArray(d.GetVertexArray())
+func DrawPolygon(d *VertexObject, color Color) {
+	vertBuffer.loadVertexArray(d.getVertexArray())
 	polygonShader.drawColor(vertBuffer, color)
 }
 
-func DrawPoint(d Point, r float32, color Color) {
-	circleShader.setUniformVec("circle", d.X, d.Y, r)
-	vertBuffer.loadVertexArray(Square(d, r*2).GetVertexArray())
+func DrawPoint(d Point, r float64, color Color) {
+	circleShader.setUniformVec("circle", float32(d.X), float32(d.Y), float32(r))
+	vertBuffer.loadVertexArray(Square(d, r*2).getVertexArray())
 	circleShader.drawColor(vertBuffer, color)
 }
 
 func DrawLines(points []Point, color Color) {
 	vo := VertexObject{}
-	for i, v := range points {
-		vo.Vertices = append(vo.Vertices, v)
-		vo.Indices = append(vo.Indices, uint32(i))
+	vo.Vertices = points
+	for i := 0; i < len(points); i++ {
+		vo.Indices = append(vo.Indices, i)
 	}
 
-	vertBuffer.loadVertexArray(vo.GetVertexArray())
+	vertBuffer.loadVertexArray(vo.getVertexArray())
 	polygonShader.drawLines(vertBuffer, color)
 }
 
@@ -86,7 +86,7 @@ func Init(width, height int) error {
 }
 
 func ClearColor(color Color) {
-	gl.ClearColor(color[0], color[1], color[2], color[3])
+	gl.ClearColor(float32(color.R), float32(color.G), float32(color.B), float32(color.A))
 }
 
 func orthoProjection(left, right, bottom, top, near, far float32) []float32 {
