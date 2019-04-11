@@ -61,8 +61,6 @@ func main() {
 
 	defer window.Destroy()
 
-	window.SetKeyCallback(keyCallback)
-
 	// Center window on screen
 	vidmode := glfw.GetPrimaryMonitor().GetVideoMode()
 	window.SetPos((vidmode.Width-width)/2, (vidmode.Height-height)/2)
@@ -99,5 +97,4 @@ For more features, please refer to demo program source code included in the repo
 
 Libraries used:
  * [go-gl](https://github.com/go-gl/gl): Go bindings for OpenGL.
- * [GLFW](http://www.glfw.org): Open Source, multi-platform library for OpenGL, OpenGL ES and Vulkan development on the desktop.
  
