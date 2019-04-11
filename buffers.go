@@ -78,7 +78,7 @@ func (v *vertexBuffer) loadVertexArray(vertices []float32, elements []uint32) {
 			v.eboSize *= 2
 		}
 		log.Println("Reallocating EBO:", v.eboSize)
-		gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(elements)*t32Bytes, gl.Ptr(elements), gl.DYNAMIC_DRAW)
+		gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, v.eboSize*t32Bytes, gl.Ptr(elements), gl.DYNAMIC_DRAW)
 	} else {
 		gl.BufferSubData(gl.ELEMENT_ARRAY_BUFFER, 0, len(elements)*t32Bytes, gl.Ptr(elements))
 	}
