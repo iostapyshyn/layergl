@@ -71,6 +71,7 @@ func loop() {
 	if err != nil {
 		panic(err)
 	}
+	tex.Move(570, 410)
 
 	bg, err := layergl.NewTexture("assets/sky.png", width, height)
 
@@ -90,7 +91,7 @@ func loop() {
 
 		mu.Lock()
 
-		layergl.DrawTexture(tex.Move(570, 410))
+		layergl.DrawTexture(tex)
 		layergl.DrawPolygon(rect, rectColor)
 
 		mu.Unlock()

@@ -10,12 +10,12 @@ import (
 var mu sync.Mutex
 
 var rect = layergl.Rectangle(layergl.Point{X: 300, Y: 200}, 200, 100)
-var tex = layergl.Texture{}
+var tex *layergl.Texture
 
 var (
-	angularVelocity = float64(-.3)
-	xVelocity       = float32(1.2)
-	yVelocity       = float32(1.2)
+	angularVelocity = -.3
+	xVelocity       = 1.2
+	yVelocity       = 1.2
 	rectColor       = layergl.Color{}
 )
 
@@ -49,7 +49,7 @@ func worldRun() {
 // World initialization
 func worldInit() {
 	rand.Seed(time.Now().UnixNano())
-	rectColor = layergl.Color{rand.Float32(), rand.Float32(), rand.Float32(), 0.9}
+	rectColor = layergl.Color{rand.Float64(), rand.Float64(), rand.Float64(), 0.9}
 }
 
 // Main world updating function.
@@ -58,21 +58,22 @@ func worldUpdate() {
 
 	mu.Lock()
 
-	rect = rect.Move(xVelocity, yVelocity).RotateDeg(angularVelocity)
-	tex = tex.RotateDeg(texRotation)
+	rect.Move(xVelocity, yVelocity)
+	rect.RotateDeg(angularVelocity)
+	tex.RotateDeg(texRotation)
 
 	if (rect.XMostPoint().X >= width && xVelocity > 0) ||
 		(rect.XLeastPoint().X <= 0 && xVelocity < 0) {
 		xVelocity = -xVelocity
 		angularVelocity = -angularVelocity
-		rectColor = layergl.Color{rand.Float32(), rand.Float32(), rand.Float32(), 0.9}
+		rectColor = layergl.Color{rand.Float64(), rand.Float64(), rand.Float64(), 0.9}
 	}
 
 	if (rect.YMostPoint().Y >= height && yVelocity > 0) ||
 		(rect.YLeastPoint().Y <= 0 && yVelocity < 0) {
 		yVelocity = -yVelocity
 		angularVelocity = -angularVelocity
-		rectColor = layergl.Color{rand.Float32(), rand.Float32(), rand.Float32(), 0.9}
+		rectColor = layergl.Color{rand.Float64(), rand.Float64(), rand.Float64(), 0.9}
 	}
 
 	mu.Unlock()
