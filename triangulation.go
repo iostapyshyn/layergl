@@ -83,7 +83,7 @@ func (vo *VertexObject) Triangulate() error {
 	return nil
 }
 
-func PolygonFromVertices(p ...Point) (*VertexObject, error) {
+func PolygonFromVertices(p []Point) (*VertexObject, error) {
 	vo := new(VertexObject)
 	vo.Vertices = p
 

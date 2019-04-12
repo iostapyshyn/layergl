@@ -49,16 +49,6 @@ func Square(c Point, d float64) (polygon *VertexObject) {
 	return polygon
 }
 
-func Line(points ...Point) (polygon *VertexObject) {
-	polygon = new(VertexObject)
-	for i, v := range points {
-		polygon.Vertices = append(polygon.Vertices, v)
-		polygon.Indices = append(polygon.Indices, i)
-	}
-
-	return polygon
-}
-
 func Triangles(vertices ...Point) (polygon *VertexObject) {
 	polygon = new(VertexObject)
 	for i := 0; i+3 <= len(vertices); i += 3 {
