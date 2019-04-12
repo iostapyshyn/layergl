@@ -12,18 +12,23 @@ type Point struct {
 	X, Y float64
 }
 
+type Rect struct {
+	X1, Y1 float64
+	X2, Y2 float64
+}
+
 type VertexObject struct {
 	Vertices []Point
 	Indices  []int
 }
 
-func Rectangle(c Point, d1, d2 float64) (polygon *VertexObject) {
+func Rectangle(rect Rect) (polygon *VertexObject) {
 	polygon = new(VertexObject)
 	polygon.Vertices = []Point{
-		{c.X, c.Y},
-		{c.X, c.Y + d2},
-		{c.X + d1, c.Y},
-		{c.X + d1, c.Y + d2},
+		{rect.X1, rect.Y1},
+		{rect.X1, rect.Y2},
+		{rect.X2, rect.Y1},
+		{rect.X2, rect.Y2},
 	}
 	polygon.Indices = []int{
 		0, 1, 2,
@@ -33,23 +38,7 @@ func Rectangle(c Point, d1, d2 float64) (polygon *VertexObject) {
 	return polygon
 }
 
-func Square(c Point, d float64) (polygon *VertexObject) {
-	polygon = new(VertexObject)
-	polygon.Vertices = []Point{
-		{c.X - d/2, c.Y - d/2},
-		{c.X - d/2, c.Y + d/2},
-		{c.X + d/2, c.Y - d/2},
-		{c.X + d/2, c.Y + d/2},
-	}
-	polygon.Indices = []int{
-		0, 1, 2,
-		1, 2, 3,
-	}
-
-	return polygon
-}
-
-func Triangles(vertices ...Point) (polygon *VertexObject) {
+func Triangles(vertices []Point) (polygon *VertexObject) {
 	polygon = new(VertexObject)
 	for i := 0; i+3 <= len(vertices); i += 3 {
 		polygon.Vertices = append(polygon.Vertices, vertices[i], vertices[i+1], vertices[i+2])
@@ -59,7 +48,23 @@ func Triangles(vertices ...Point) (polygon *VertexObject) {
 	return polygon
 }
 
-func (p *VertexObject) getVertexArray() (va []float32, elements []uint32) {
+func (r Rect) vertexArray() ([]float32, []uint32) {
+	va := []float32{
+		float32(r.X1), float32(r.Y1),
+		float32(r.X1), float32(r.Y2),
+		float32(r.X2), float32(r.Y1),
+		float32(r.X2), float32(r.Y2),
+	}
+
+	elements := []uint32{
+		0, 1, 2,
+		1, 2, 3,
+	}
+
+	return va, elements
+}
+
+func (p VertexObject) vertexArray() (va []float32, elements []uint32) {
 	for _, v := range p.Vertices {
 		va = append(va, float32(v.X))
 		va = append(va, float32(v.Y))

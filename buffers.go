@@ -48,7 +48,7 @@ func newVertexBuffer(bufferSize int) *vertexBuffer {
 	return &vertexBuffer{vao, vbo, uvbo, ebo, bufferSize, bufferSize, 0}
 }
 
-func (v *vertexBuffer) loadUVs(uv []float32) {
+func (v vertexBuffer) loadUVs(uv []float32) {
 	if len(uv) > v.vboSize {
 		log.Println("Error loading UVs.")
 		return

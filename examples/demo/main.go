@@ -28,13 +28,13 @@ func main() {
 
 	defer glfw.Terminate()
 
-	// OpenGL version 3.3 Core
+	// OpenGL version 3.3 Core.
 	glfw.WindowHint(glfw.ContextVersionMajor, 3)
 	glfw.WindowHint(glfw.ContextVersionMinor, 3)
 	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
 	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
 
-	// Required for MSAA anti-aliasing
+	// Required for MSAA anti-aliasing.
 	glfw.WindowHint(glfw.Samples, 4)
 
 	glfw.WindowHint(glfw.Resizable, glfw.False)
@@ -49,7 +49,7 @@ func main() {
 
 	window.SetKeyCallback(keyCallback)
 
-	// Center window on screen
+	// Center window on the screen.
 	vidmode := glfw.GetPrimaryMonitor().GetVideoMode()
 	window.SetPos((vidmode.Width-width)/2, (vidmode.Height-height)/2)
 
@@ -75,7 +75,7 @@ func loop() {
 
 	bg, err := layergl.NewTexture("assets/sky.png", width, height)
 
-	// Ticker for updating FPS
+	// Ticker for updating the FPS counter.
 	ticker := time.NewTicker(time.Second)
 	frames := 0
 
@@ -92,7 +92,7 @@ func loop() {
 		mu.Lock()
 
 		layergl.DrawTexture(tex)
-		layergl.DrawPolygon(rect, rectColor)
+		layergl.DrawVertexObject(rect, rectColor)
 
 		mu.Unlock()
 

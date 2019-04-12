@@ -9,7 +9,12 @@ import (
 
 var mu sync.Mutex
 
-var rect = layergl.Rectangle(layergl.Point{X: 300, Y: 200}, 200, 100)
+const (
+	rectWidth  = 200
+	rectHeight = 100
+)
+
+var rect = layergl.Rectangle(layergl.Rect{300, 200, 300 + rectWidth, 200 + rectHeight})
 var tex *layergl.Texture
 
 var (
@@ -62,15 +67,17 @@ func worldUpdate() {
 	rect.RotateDeg(angularVelocity)
 	tex.RotateDeg(texRotation)
 
-	if (rect.XMostPoint().X >= width && xVelocity > 0) ||
-		(rect.XLeastPoint().X <= 0 && xVelocity < 0) {
+	bounds := rect.Bounds()
+
+	if (bounds.X2 >= width && xVelocity > 0) ||
+		(bounds.X1 <= 0 && xVelocity < 0) {
 		xVelocity = -xVelocity
 		angularVelocity = -angularVelocity
 		rectColor = layergl.Color{rand.Float64(), rand.Float64(), rand.Float64(), 0.9}
 	}
 
-	if (rect.YMostPoint().Y >= height && yVelocity > 0) ||
-		(rect.YLeastPoint().Y <= 0 && yVelocity < 0) {
+	if (bounds.Y2 >= height && yVelocity > 0) ||
+		(bounds.Y1 <= 0 && yVelocity < 0) {
 		yVelocity = -yVelocity
 		angularVelocity = -angularVelocity
 		rectColor = layergl.Color{rand.Float64(), rand.Float64(), rand.Float64(), 0.9}

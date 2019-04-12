@@ -13,7 +13,7 @@ var (
 )
 
 func DrawTexture(d *Texture) {
-	vertBuffer.loadVertexArray(d.getVertexArray())
+	vertBuffer.loadVertexArray(d.vertexArray())
 	vertBuffer.loadUVs([]float32{
 		0.0, 0.0,
 		0.0, 1.0,
@@ -23,25 +23,34 @@ func DrawTexture(d *Texture) {
 	textureShader.drawTexture(vertBuffer, d)
 }
 
-func DrawPolygon(d *VertexObject, color Color) {
-	vertBuffer.loadVertexArray(d.getVertexArray())
+func DrawRect(rect Rect, color Color) {
+	vertBuffer.loadVertexArray(rect.vertexArray())
+	polygonShader.drawColor(vertBuffer, color)
+}
+
+func DrawVertexObject(d *VertexObject, color Color) {
+	vertBuffer.loadVertexArray(d.vertexArray())
 	polygonShader.drawColor(vertBuffer, color)
 }
 
 func DrawPoint(d Point, r float64, color Color) {
+	rect := Rect{d.X - r, d.Y - r, d.X + r, d.Y + r}
 	circleShader.setUniformVec("circle", float32(d.X), float32(d.Y), float32(r))
-	vertBuffer.loadVertexArray(Square(d, r*2).getVertexArray())
+	vertBuffer.loadVertexArray(rect.vertexArray())
 	circleShader.drawColor(vertBuffer, color)
 }
 
 func DrawLines(points []Point, color Color) {
-	vo := VertexObject{}
-	vo.Vertices = points
-	for i := 0; i < len(points); i++ {
-		vo.Indices = append(vo.Indices, i)
+	vertices := make([]float32, 0, len(points)*2)
+	elements := make([]uint32, 0, len(points))
+
+	for i, p := range points {
+		vertices = append(vertices, float32(p.X))
+		vertices = append(vertices, float32(p.Y))
+		elements = append(elements, uint32(i))
 	}
 
-	vertBuffer.loadVertexArray(vo.getVertexArray())
+	vertBuffer.loadVertexArray(vertices, elements)
 	polygonShader.drawLines(vertBuffer, color)
 }
 

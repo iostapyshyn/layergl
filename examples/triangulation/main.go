@@ -38,7 +38,7 @@ func keyCallback(_ *glfw.Window, key glfw.Key, scancode int, action glfw.Action,
 
 	case glfw.Press:
 		switch key {
-		case glfw.KeySpace:
+		case glfw.KeySpace: // Triangulate the polygon.
 			if len(polygon.Indices) == 0 {
 				if err := polygon.Triangulate(); err != nil {
 					log.Println(err)
@@ -48,12 +48,12 @@ func keyCallback(_ *glfw.Window, key glfw.Key, scancode int, action glfw.Action,
 			} else {
 				polygon.Indices = polygon.Indices[:0]
 			}
-		case glfw.KeyW:
+		case glfw.KeyW: // Toggle wireframe.
 			wireframe = !wireframe
-		case glfw.KeyC:
+		case glfw.KeyC: // Clear.
 			polygon.Vertices = polygon.Vertices[:0]
 			polygon.Indices = polygon.Indices[:0]
-		case glfw.KeyZ:
+		case glfw.KeyZ: // Undo.
 			if len(polygon.Vertices) > 0 {
 				polygon.Vertices = append(polygon.Vertices[:len(polygon.Vertices)-1], polygon.Vertices[len(polygon.Vertices):]...)
 				polygon.Indices = polygon.Indices[:0]
@@ -62,7 +62,7 @@ func keyCallback(_ *glfw.Window, key glfw.Key, scancode int, action glfw.Action,
 
 	case glfw.Repeat:
 		switch key {
-		case glfw.KeyZ:
+		case glfw.KeyZ: // Undo.
 			polygon.Vertices = append(polygon.Vertices[:len(polygon.Vertices)-1], polygon.Vertices[len(polygon.Vertices):]...)
 			polygon.Indices = polygon.Indices[:0]
 		}
@@ -89,13 +89,13 @@ func main() {
 
 	defer glfw.Terminate()
 
-	// OpenGL version 3.3 Core
+	// OpenGL version 3.3 Core.
 	glfw.WindowHint(glfw.ContextVersionMajor, 3)
 	glfw.WindowHint(glfw.ContextVersionMinor, 3)
 	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
 	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
 
-	// Required for MSAA anti-aliasing
+	// Required for MSAA anti-aliasing.
 	glfw.WindowHint(glfw.Samples, 4)
 
 	glfw.WindowHint(glfw.Resizable, glfw.False)
@@ -111,7 +111,7 @@ func main() {
 	window.SetKeyCallback(keyCallback)
 	window.SetMouseButtonCallback(mouseCallback)
 
-	// Center window on screen
+	// Center window on the screen.
 	vidmode := glfw.GetPrimaryMonitor().GetVideoMode()
 	window.SetPos((vidmode.Width-width)/2, (vidmode.Height-height)/2)
 
@@ -132,47 +132,52 @@ func loop() {
 	layergl.ClearColor(bgColor)
 
 	for !window.ShouldClose() {
-		x, y := window.GetCursorPos()
-		if len(polygon.Vertices) != 0 && mouseHeld &&
-			(layergl.Distance(polygon.Vertices[len(polygon.Vertices)-1], layergl.Point{x, height - y}) > 5) {
-
-			polygon.Vertices = append(polygon.Vertices, layergl.Point{X: x, Y: height - y})
-			polygon.Indices = polygon.Indices[:0]
+		// Add points if mouse if being dragged.
+		if mouseHeld {
+			mouseDrag()
 		}
 
 		layergl.Clear()
 
+		// Draw triangulated polygon or preview line if polygon is not in triangulated state.
 		if len(polygon.Indices) >= 3 {
-			layergl.DrawPolygon(polygon, polygonColor)
+			layergl.DrawVertexObject(polygon, polygonColor)
+		} else if len(polygon.Vertices) > 0 {
+			for _, p := range polygon.Vertices {
+				layergl.DrawPoint(p, 2, wireColor)
+			}
+
+			layergl.DrawLines(append(polygon.Vertices, polygon.Vertices[0]), wireColor)
 		}
 
-		drawPreview()
-		drawWireframe()
+		if wireframe {
+			drawWireframe()
+		}
 
 		window.SwapBuffers()
 		glfw.PollEvents()
 	}
 }
 
-func drawPreview() {
-	if len(polygon.Vertices) > 0 && len(polygon.Indices) == 0 {
-		for _, p := range polygon.Vertices {
-			layergl.DrawPoint(p, 2, wireColor)
-		}
+func mouseDrag() {
+	x, y := window.GetCursorPos()
 
-		layergl.DrawLines(append(polygon.Vertices, polygon.Vertices[0]), wireColor)
+	// Add new point only if the distance from the previous one is greater than 5px
+	if len(polygon.Vertices) != 0 &&
+		(layergl.Distance(polygon.Vertices[len(polygon.Vertices)-1], layergl.Point{x, height - y}) > 5) {
+
+		polygon.Vertices = append(polygon.Vertices, layergl.Point{X: x, Y: height - y})
+		polygon.Indices = polygon.Indices[:0]
 	}
 }
 
 func drawWireframe() {
-	if wireframe {
-		for i := 0; i < len(polygon.Indices); i += 3 {
-			layergl.DrawLines([]layergl.Point{
-				polygon.Vertices[polygon.Indices[i]],
-				polygon.Vertices[polygon.Indices[i+1]],
-				polygon.Vertices[polygon.Indices[i+2]],
-				polygon.Vertices[polygon.Indices[i]],
-			}, wireColor)
-		}
+	for i := 0; i < len(polygon.Indices); i += 3 {
+		layergl.DrawLines([]layergl.Point{
+			polygon.Vertices[polygon.Indices[i]],
+			polygon.Vertices[polygon.Indices[i+1]],
+			polygon.Vertices[polygon.Indices[i+2]],
+			polygon.Vertices[polygon.Indices[i]],
+		}, wireColor)
 	}
 }

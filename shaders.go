@@ -88,13 +88,14 @@ func (shader shader) drawLines(vao *vertexBuffer, color Color) {
 	gl.DrawElements(gl.LINE_STRIP, int32(vao.count), gl.UNSIGNED_INT, nil)
 }
 
+// Links vertex and fragment shaders.
 func newShaderProgram(vs, fs string) shader {
-	vertexShader, err := loadShader(vs, gl.VERTEX_SHADER)
+	vertexShader, err := compileShader(vs, gl.VERTEX_SHADER)
 	if err != nil {
 		panic(err)
 	}
 
-	fragmentShader, err := loadShader(fs, gl.FRAGMENT_SHADER)
+	fragmentShader, err := compileShader(fs, gl.FRAGMENT_SHADER)
 	if err != nil {
 		panic(err)
 	}
@@ -109,15 +110,8 @@ func newShaderProgram(vs, fs string) shader {
 	return shader
 }
 
-func loadShader(data string, shaderType uint32) (uint32, error) {
-	/*
-		fileName = shaderDir + fileName
-		b, err := ioutil.ReadFile(fileName)
-		if err != nil {
-			panic(err)
-		}
-	*/
-
+// Compiles a shader.
+func compileShader(data string, shaderType uint32) (uint32, error) {
 	shader := gl.CreateShader(shaderType)
 
 	source := string(data)

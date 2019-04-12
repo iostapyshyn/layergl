@@ -52,9 +52,10 @@ func loadImage(fileName string) (uint32, error) {
 	return texture, nil
 }
 
+// Loads and creates new Texture object.
 func NewTexture(fileName string, width, height float64) (texture *Texture, err error) {
 	texture = new(Texture)
-	texture.VertexObject = Rectangle(Point{0, 0}, width, height)
+	texture.VertexObject = Rectangle(Rect{0, 0, width, height})
 	texture.tex, err = loadImage(fileName)
 	texture.width = float32(width)
 	texture.height = float32(height)
@@ -64,24 +65,4 @@ func NewTexture(fileName string, width, height float64) (texture *Texture, err e
 func (t *Texture) bind() {
 	gl.ActiveTexture(gl.TEXTURE0)
 	gl.BindTexture(gl.TEXTURE_2D, t.tex)
-}
-
-func (t *Texture) Move(x, y float64) {
-	t.VertexObject.Move(x, y)
-}
-
-func (t *Texture) CenterAt(point Point) {
-	t.VertexObject.CenterAt(point)
-}
-
-func (t *Texture) RotateDeg(angle float64) {
-	t.VertexObject.RotateDeg(angle)
-}
-
-func (t *Texture) RotateRad(angle float64) {
-	t.VertexObject.RotateRad(angle)
-}
-
-func (t *Texture) Scale(scale float64) {
-	t.VertexObject.Scale(scale)
 }

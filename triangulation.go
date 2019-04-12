@@ -9,7 +9,7 @@ func sign(a, b, c Point) float64 {
 	return (a.X-c.X)*(b.Y-c.Y) - (b.X-c.X)*(a.Y-c.Y)
 }
 
-// Is point P inside a triangle ABC?
+// Returns true if point P is inside triangle ABC.
 func triangleContains(P, A, B, C Point) bool {
 
 	if P == A || P == B || P == C {
@@ -27,7 +27,7 @@ func triangleContains(P, A, B, C Point) bool {
 
 }
 
-// Vertices have to be in clockwise order
+// Returns index of an ear to be cut from polygon.
 func findEar(vert []Point, indexes []int) int {
 	if len(indexes) < 3 {
 		return 0
@@ -54,36 +54,43 @@ func findEar(vert []Point, indexes []int) int {
 		}
 	}
 
-	// Function returns 0 if there are no ears to be found or when given invalid input
+	// findEar returns 0 if there are no ears to be found or when given invalid input.
 	return 0
 }
 
+// Performs triangulation of VertexObject, writing to the Indices field.
 func (vo *VertexObject) Triangulate() error {
 	if len(vo.Vertices) < 3 {
 		return fmt.Errorf("unable perform triangulation of the polygon")
 	}
 
-	indexes := make([]int, len(vo.Vertices))
+	// Stores list of ears still present in a polygon in a process of ear-cutting.
+	ears := make([]int, len(vo.Vertices))
 	for i := 0; i < len(vo.Vertices); i++ {
-		indexes[i] = i
+		ears[i] = i
 	}
 
 	// In most cases triangulation of n vertices creates n-2 triangles.
 	vo.Indices = make([]int, 0, (len(vo.Vertices)-2)*3)
-	for len(indexes) >= 3 {
-		if i := findEar(vo.Vertices, indexes); i == 0 {
+	for len(ears) >= 3 {
+		if i := findEar(vo.Vertices, ears); i == 0 {
+			// In case findEar fails.
 			vo.Indices = vo.Indices[:0]
 			return fmt.Errorf("unable perform triangulation of the polygon")
 		} else {
-			vo.Indices = append(vo.Indices, indexes[i-1], indexes[i], indexes[i+1])
-			indexes = append(indexes[:i], indexes[i+1:]...)
+			// Add new triangle.
+			vo.Indices = append(vo.Indices, ears[i-1], ears[i], ears[i+1])
+
+			// Cut the ear.
+			ears = append(ears[:i], ears[i+1:]...)
 		}
 	}
 
 	return nil
 }
 
-func PolygonFromVertices(p []Point) (*VertexObject, error) {
+// Performs triangulation creating new VertexObject.
+func FromVertices(p []Point) (*VertexObject, error) {
 	vo := new(VertexObject)
 	vo.Vertices = p
 
