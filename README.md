@@ -42,13 +42,13 @@ func main() {
 
 	defer glfw.Terminate()
 
-	// OpenGL version 3.3 Core
+	// OpenGL version 3.3 Core.
 	glfw.WindowHint(glfw.ContextVersionMajor, 3)
 	glfw.WindowHint(glfw.ContextVersionMinor, 3)
 	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
 	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
 
-	// Required for MSAA anti-aliasing
+	// Required for MSAA anti-aliasing.
 	glfw.WindowHint(glfw.Samples, 4)
 
 	glfw.WindowHint(glfw.Resizable, glfw.False)
@@ -61,7 +61,7 @@ func main() {
 
 	defer window.Destroy()
 
-	// Center window on screen
+	// Center window on the screen.
 	vidmode := glfw.GetPrimaryMonitor().GetVideoMode()
 	window.SetPos((vidmode.Width-width)/2, (vidmode.Height-height)/2)
 
@@ -82,10 +82,11 @@ func loop() {
 	for !window.ShouldClose() {
 		layergl.Clear()
 
-		layergl.DrawPolygon(layergl.Triangles([]layergl.Point{
+		layergl.DrawVertexObject(layergl.Triangles([]layergl.Point{
 			{X: width/2 - 100, Y: height/2 - 100},
 			{X: width/2 + 100, Y: height/2 - 100},
-			{X: width / 2, Y: height/2 + 100}}...), layergl.Color{1.0, 0.0, 1.0, 1.0})
+			{X: width / 2, Y: height/2 + 100},
+		}), layergl.Color{1.0, 0.0, 1.0, 1.0})
 
 		window.SwapBuffers()
 		glfw.PollEvents()
