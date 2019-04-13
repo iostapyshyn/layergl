@@ -11,7 +11,10 @@ type vertexBuffer struct {
 	count               int
 }
 
-const t32Bytes = 4
+const (
+	t32Bytes = 4
+	uvboSize = 8
+)
 
 func newVertexBuffer(bufferSize int) *vertexBuffer {
 	if bufferSize <= 0 {
@@ -34,7 +37,7 @@ func newVertexBuffer(bufferSize int) *vertexBuffer {
 	var uvbo uint32
 	gl.GenBuffers(1, &uvbo)
 	gl.BindBuffer(gl.ARRAY_BUFFER, uvbo)
-	gl.BufferData(gl.ARRAY_BUFFER, bufferSize*t32Bytes, gl.Ptr(nil), gl.DYNAMIC_DRAW)
+	gl.BufferData(gl.ARRAY_BUFFER, uvboSize*t32Bytes, gl.Ptr(nil), gl.DYNAMIC_DRAW)
 
 	// texCoord attribute
 	gl.EnableVertexAttribArray(1)
@@ -49,7 +52,7 @@ func newVertexBuffer(bufferSize int) *vertexBuffer {
 }
 
 func (v vertexBuffer) loadUVs(uv []float32) {
-	if len(uv) > v.vboSize {
+	if len(uv) > uvboSize {
 		log.Println("Error loading UVs.")
 		return
 	}
