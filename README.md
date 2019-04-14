@@ -1,5 +1,5 @@
 # LayerGL
-Modern OpenGL abstraction layer (In other words, graphics library) for Go.
+OpenGL 3.3 abstraction layer (In other words, graphics library) for Go.
 
 ![Minimal example window](screenshot.png?raw=true)
 
