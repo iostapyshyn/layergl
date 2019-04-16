@@ -11,7 +11,10 @@ var window *glfw.Window
 
 var polygon = new(layergl.VertexObject)
 var wireframe bool = true
-var mouseHeld bool = false
+
+var (
+	mouseButtonHeld = false
+)
 
 const (
 	width  = 640
@@ -75,9 +78,9 @@ func mouseCallback(_ *glfw.Window, button glfw.MouseButton, action glfw.Action, 
 		polygon.Vertices = append(polygon.Vertices, layergl.Point{X: x, Y: height - y})
 		polygon.Indices = polygon.Indices[:0]
 
-		mouseHeld = true
+		mouseButtonHeld = true
 	} else if button == glfw.MouseButtonLeft && action == glfw.Release {
-		mouseHeld = false
+		mouseButtonHeld = false
 	}
 }
 
@@ -133,7 +136,7 @@ func loop() {
 
 	for !window.ShouldClose() {
 		// Add points if mouse if being dragged.
-		if mouseHeld {
+		if mouseButtonHeld {
 			mouseDrag()
 		}
 

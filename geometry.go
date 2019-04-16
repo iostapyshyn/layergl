@@ -1,6 +1,7 @@
 package layergl
 
 import (
+	"log"
 	"math"
 )
 
@@ -56,6 +57,10 @@ func Rectangle(rect Rect) (polygon *VertexObject) {
 }
 
 func Triangles(vertices []Point) (polygon *VertexObject) {
+	if len(vertices)%3 != 0 {
+		log.Println("Number of vertices for layergl.Triangle() should be multiple of 3.")
+	}
+
 	polygon = new(VertexObject)
 	for i := 0; i+3 <= len(vertices); i += 3 {
 		polygon.Vertices = append(polygon.Vertices, vertices[i], vertices[i+1], vertices[i+2])
@@ -65,6 +70,7 @@ func Triangles(vertices []Point) (polygon *VertexObject) {
 	return polygon
 }
 
+// Returns vertex array of Rect in a proper format to load into the buffers.
 func (r Rect) vertexArray() ([]float32, []uint32) {
 	va := []float32{
 		float32(r.X1), float32(r.Y1),
@@ -81,6 +87,7 @@ func (r Rect) vertexArray() ([]float32, []uint32) {
 	return va, elements
 }
 
+// Returns vertex array of VertexObject in a proper format to load into the buffers.
 func (p VertexObject) vertexArray() (va []float32, elements []uint32) {
 	for _, v := range p.Vertices {
 		va = append(va, float32(v.X))
@@ -94,6 +101,7 @@ func (p VertexObject) vertexArray() (va []float32, elements []uint32) {
 	return
 }
 
+// Translation of the VertexObject by x, y pixels in the respective directions.
 func (p *VertexObject) Move(x, y float64) {
 	for i, _ := range p.Vertices {
 		p.Vertices[i].X += x
@@ -101,11 +109,13 @@ func (p *VertexObject) Move(x, y float64) {
 	}
 }
 
+// Centers VertexObject at exact point.
 func (p *VertexObject) CenterAt(point Point) {
 	center := p.Centroid()
 	p.Move(-center.X+point.X, -center.Y+point.Y)
 }
 
+// Rotation.
 func (v *VertexObject) RotateDeg(angle float64) {
 	v.RotateRad(angle * math.Pi / 180)
 }
@@ -122,6 +132,7 @@ func (v *VertexObject) RotateRad(angle float64) {
 	}
 }
 
+// Scaling.
 func (v *VertexObject) Scale(scale float64) {
 	center := v.Centroid()
 	for i, _ := range v.Vertices {
