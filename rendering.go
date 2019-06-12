@@ -9,6 +9,7 @@ var (
 	polygonShader shader
 	circleShader  shader
 	textureShader shader
+	fontShader    shader
 	vertBuffer    *vertexBuffer
 )
 
@@ -83,6 +84,7 @@ func Init(width, height int) error {
 	polygonShader = newShaderProgram(vertexVert, polygonFrag)
 	circleShader = newShaderProgram(vertexVert, circleFrag)
 	textureShader = newShaderProgram(textureVert, textureFrag)
+	fontShader = newShaderProgram(fontVert, textureFrag)
 
 	projectionMatrix := orthoProjection(0, float32(width), 0, float32(height), -1, 1)
 	polygonShader.setUniformMat("projection", projectionMatrix)
@@ -105,5 +107,41 @@ func orthoProjection(left, right, bottom, top, near, far float32) []float32 {
 		0, 2. / tmb, 0, 0,
 		0, 0, 2. / fmn, 0,
 		-(right + left) / rml, -(top + bottom) / tmb, -(far + near) / fmn, 1,
+	}
+}
+
+func (f *Font) Printf(point Point, color Color, scale float64, fs string, argv ...interface{}) {
+	indices := []rune(fmt.Sprintf(fs, argv...))
+	if len(indices) == 0 {
+		return
+	}
+
+	for i := range indices {
+		runeIndex := rune(indices[i])
+
+		// if rune is not in range
+		if int(runeIndex) > maxchar {
+			fmt.Println("%c %d\n", runeIndex, runeIndex)
+		}
+
+		ch := f.char[runeIndex]
+		xpos := point.X + float64(ch.bH)*scale
+		ypos := point.Y - float64(ch.h-ch.bV)*scale
+		w := float64(ch.w) * scale
+		h := float64(ch.h) * scale
+
+		rect := Rect{xpos, ypos, xpos + w, ypos + h}
+		tex := Texture{Rectangle(rect), float32(w), float32(h), ch.tex}
+
+		fontShader.setUniformVec("textColor", float32(color.R), float32(color.G), float32(color.B), float32(color.A))
+
+		vertBuffer.loadVertexArray(tex.vertexArray())
+		vertBuffer.loadUVs([]float32{
+			0.0, 0.0,
+			0.0, 1.0,
+			1.0, 0.0,
+			1.0, 1.0,
+		})
+		fontShader.drawTexture(vertBuffer, &tex)
 	}
 }
